@@ -5,266 +5,161 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LankaLotto - ශ්‍රී ලංකාවේ සියලුම ලොතරැයි ප්‍රතිඵල</title>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#f59e0b">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-body{font-family:sans-serif;background:#070b12;color:#f8fafc;min-height:100vh;overflow-x:hidden}
-@keyframes pop{0%{transform:scale(0.4);opacity:0}100%{transform:scale(1);opacity:1}}
-.ball{animation:pop 0.4s ease-out forwards;box-shadow:0 4px 10px rgba(0,0,0,0.5),inset 0 2px 4px rgba(255,255,255,0.5)}
-.reel{animation:pop 0.4s ease-out forwards;background:linear-gradient(180deg,#1e293b,#020617);border:1.5px solid #f59e0b}
-.matched{background:#22c55e!important;color:#000!important;box-shadow:0 0 15px #22c55e!important;transform:scale(1.1)}
-@media print{.no-print{display:none!important}}
+body{font-family:sans-serif;background:#070b12;color:#f8fafc;min-height:100vh}
+.ball{box-shadow:0 4px 10px rgba(0,0,0,0.5),inset 0 2px 4px rgba(255,255,255,0.4)}
+.reel{background:linear-gradient(180deg,#1e293b,#020617);border:1.5px solid #f59e0b}
+.matched{background:#22c55e!important;color:#000!important;transform:scale(1.1)}
+button,label{cursor:pointer;touch-action:manipulation}
 </style>
 </head>
-<body>
-<div class="no-print bg-amber-500 text-slate-950 text-xs font-extrabold py-2 px-3 text-center flex justify-center items-center gap-2">
-    <span class="w-2 h-2 bg-red-600 rounded-full animate-ping"></span>
-    <span>රාත්‍රී 10:00 දිනුම් ඇදීමෙන් පසු ලොතරැයි 18 ස්වයංක්‍රීයව යාවත්කාලීන වේ!</span>
-    <span id="timer" class="bg-slate-950 text-amber-400 px-2 py-0.5 rounded font-mono">00:00:00</span>
+<body class="p-3 md:p-6 max-w-7xl mx-auto space-y-6">
+<div class="bg-amber-500 text-slate-950 text-xs font-extrabold py-2 px-3 rounded-xl text-center">
+  🔴 රාත්‍රී 10:00 දිනුම් ඇදීමෙන් පසු NLB, DLB සහ Reels ලොතරැයි 18 ස්වයංක්‍රීයව යාවත්කාලීන වේ!
 </div>
 
-<header class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3 border-b border-white/10">
-    <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 text-xl font-black"><i class="fa-solid fa-clover"></i></div>
-        <div>
-            <h1 class="text-xl font-extrabold text-white">Lanka<span class="text-amber-400">Lotto</span></h1>
-            <p class="text-[11px] text-slate-400">NLB, DLB සහ Reels ලොතරැයි ප්‍රතිඵල</p>
-        </div>
-    </div>
-    <div class="no-print flex items-center gap-2">
-        <button onclick="sound=!sound;this.innerText=sound?'🔊 Sound On':'🔇 Muted'" class="bg-slate-900 border border-white/15 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold">🔊 Sound On</button>
-        <button onclick="window.print()" class="bg-slate-900 border border-white/15 text-sky-400 px-3 py-1.5 rounded-xl text-xs font-bold"><i class="fa-solid fa-print"></i> Print</button>
-        <button onclick="lang=lang==='si'?'en':'si';init()" class="bg-amber-500 text-slate-950 px-3 py-1.5 rounded-xl text-xs font-extrabold">සිං / EN</button>
-    </div>
+<header class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+  <div>
+    <h1 class="text-2xl font-black text-white">Lanka<span class="text-amber-400">Lotto</span> <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full">ALL 18</span></h1>
+    <p class="text-xs text-slate-400">ශ්‍රී ලංකාවේ සියලුම ලොතරැයි ප්‍රතිඵල සහ කැමරා ස්කෑනරය</p>
+  </div>
+  <div class="flex gap-2">
+    <button type="button" onclick="window.print()" class="bg-slate-800 border border-white/15 text-sky-400 px-3 py-2 rounded-xl text-xs font-bold">🖨️ Print</button>
+    <button type="button" onclick="toggleLang()" id="langBtn" class="bg-amber-500 text-slate-950 px-3 py-2 rounded-xl text-xs font-extrabold">English / සිංහල</button>
+  </div>
 </header>
 
-<main class="max-w-7xl mx-auto px-4 py-6 space-y-7">
-    <!-- Scanner & Prize Calculator -->
-    <section class="no-print bg-slate-900/90 rounded-3xl p-5 border border-white/10 shadow-xl">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
-            <div>
-                <span class="bg-amber-500/20 text-amber-300 text-[11px] font-bold px-2.5 py-0.5 rounded-full">SMART SCANNER & PRIZE CHECKER</span>
-                <h2 class="text-lg font-extrabold mt-1 text-white">ටිකට් පත Scan කර හෝ අංක ඇතුළත් කර දිනුම් බලන්න</h2>
-            </div>
-            <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                <button onclick="startQR()" class="flex-1 md:flex-none bg-sky-600 text-white font-bold py-2.5 px-3.5 rounded-xl text-xs"><i class="fa-solid fa-qrcode mr-1"></i>QR Scan</button>
-                <button onclick="startCam()" class="flex-1 md:flex-none bg-emerald-500 text-slate-950 font-extrabold py-2.5 px-3.5 rounded-xl text-xs"><i class="fa-solid fa-camera mr-1"></i>Live Camera</button>
-                <label class="flex-1 md:flex-none cursor-pointer bg-amber-500 text-slate-950 font-extrabold py-2.5 px-3.5 rounded-xl text-xs text-center">
-                    <i class="fa-solid fa-camera-retro mr-1"></i>Photo ගහන්න
-                    <input type="file" id="fileIn" accept="image/*" capture="environment" class="hidden" onchange="scanFile(event)">
-                </label>
-            </div>
-        </div>
-
-        <div id="ocrBox" class="hidden mb-4 p-3 rounded-xl bg-slate-950 border border-emerald-500/40 text-xs text-emerald-400 font-bold">
-            <i class="fa-solid fa-spinner fa-spin mr-1"></i> ටිකට් පතේ අංක කියවමින් පවතී... <span id="ocrPct">0%</span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-            <div class="md:col-span-4">
-                <label class="text-xs text-slate-400">ලොතරැයිය තෝරන්න</label>
-                <select id="lottoSel" class="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-white text-sm mt-1"></select>
-            </div>
-            <div class="md:col-span-4">
-                <label class="text-xs text-slate-400">අකුර සහ අංක (Space තබා ගහන්න)</label>
-                <input type="text" id="tktIn" placeholder="උදා: I 08 20 31 66" class="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-white font-mono text-sm mt-1">
-            </div>
-            <div class="md:col-span-2">
-                <button onclick="checkTkt()" class="w-full bg-amber-500 text-slate-950 font-extrabold py-2.5 rounded-xl text-sm">දිනුම් බලන්න</button>
-            </div>
-            <div class="md:col-span-2">
-                <button onclick="saveVault()" class="w-full bg-slate-800 border border-amber-500/40 text-amber-300 font-bold py-2.5 rounded-xl text-sm">Vault දාන්න</button>
-            </div>
-        </div>
-        <div id="resBox" class="hidden mt-4 p-4 rounded-2xl bg-slate-950 border border-white/15"></div>
-    </section>
-
-    <!-- Filter & 18 Lotteries Grid -->
-    <section>
-        <div class="no-print flex flex-wrap justify-between gap-2 mb-4">
-            <div class="flex gap-1.5 bg-slate-900 p-1 rounded-xl border border-white/10">
-                <button onclick="board='ALL';render()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950">සියල්ල (18)</button>
-                <button onclick="board='NLB';render()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300">NLB (9)</button>
-                <button onclick="board='DLB';render()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300">DLB (9)</button>
-                <button onclick="board='REEL';render()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-purple-300">Reels (8)</button>
-            </div>
-            <input type="text" id="srch" oninput="render()" placeholder="ලොතරැයිය සොයන්න..." class="bg-slate-900 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white">
-        </div>
-        <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    </section>
-
-    <!-- Supreme Tools -->
-    <section class="no-print bg-slate-900/90 rounded-3xl p-5 border border-amber-500/30">
-        <h2 class="text-base font-extrabold text-amber-400 mb-3"><i class="fa-solid fa-crown mr-1"></i> LankaLotto Supreme Tools</h2>
-        <div class="flex flex-wrap gap-1.5 pb-3 border-b border-white/10 text-xs">
-            <button onclick="tab(1)" class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold">1. කාල යන්ත්‍රය</button>
-            <button onclick="tab(2)" class="px-3 py-1.5 rounded-lg bg-slate-950 text-slate-300 border border-white/10">2. Wheeling පැකේජ</button>
-            <button onclick="tab(3)" class="px-3 py-1.5 rounded-lg bg-slate-950 text-slate-300 border border-white/10">3. හවුල් බෙදනය</button>
-            <button onclick="tab(4)" class="px-3 py-1.5 rounded-lg bg-slate-950 text-slate-300 border border-white/10">4. සිහින සහ ලග්න</button>
-        </div>
-        <div id="p1" class="pt-4 flex flex-col md:flex-row gap-3 items-center">
-            <input type="text" id="tmIn" value="07 23 45 68" class="bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-white font-mono text-sm">
-            <button onclick="runTM()" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs">වසර 5ක දිනුම් බලන්න</button>
-            <div id="tmOut" class="text-xs text-emerald-400 font-bold"></div>
-        </div>
-        <div id="p2" class="hidden pt-4 flex flex-col md:flex-row gap-3 items-center">
-            <input type="text" id="whIn" value="05 14 27 38 51 69" class="bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-white font-mono text-sm">
-            <button onclick="runWh()" class="bg-emerald-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs">ටිකට් 4ක් හදන්න</button>
-            <div id="whOut" class="text-xs font-mono text-amber-300"></div>
-        </div>
-        <div id="p3" class="hidden pt-4 flex flex-wrap gap-3 items-center text-xs">
-            <span>සාමාජිකයන්:</span><input type="number" id="synM" value="4" oninput="runSyn()" class="w-16 bg-slate-950 border border-white/15 rounded-lg px-2 py-1 text-white">
-            <span>ජයමල්ල:</span><input type="number" id="synJ" value="50000000" oninput="runSyn()" class="w-32 bg-slate-950 border border-white/15 rounded-lg px-2 py-1 text-white">
-            <div id="synOut" class="text-sky-300 font-bold"></div>
-        </div>
-        <div id="p4" class="hidden pt-4 flex flex-wrap gap-3 items-center text-xs">
-            <select id="drm" onchange="runDrm()" class="bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-white">
-                <option value="G 07 19 45 77">🐘 අලියෙක් දැකීම</option>
-                <option value="N 09 18 36 63">🐍 නාගයෙක් දැකීම</option>
-                <option value="W 04 12 28 56">🌊 ජලය / දිය ඇල්ලක්</option>
-                <option value="K 01 10 49 69">👑 රත්තරන් / මැණික්</option>
-            </select>
-            <div id="drmOut" class="font-mono font-extrabold text-amber-400 text-sm"></div>
-        </div>
-    </section>
-
-    <!-- Vault -->
-    <section class="no-print bg-slate-900/90 rounded-3xl p-5 border border-white/10">
-        <div class="flex justify-between items-center mb-2 text-xs font-bold">
-            <span>💼 මගේ ටිකට් පසුම්බිය (Vault)</span>
-            <button onclick="localStorage.removeItem('v');renderVault()" class="text-rose-400">මකන්න</button>
-        </div>
-        <div id="vList" class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs"></div>
-    </section>
-</main>
-
-<div id="qrMod" class="fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4">
-    <div class="bg-slate-900 rounded-2xl max-w-sm w-full p-4">
-        <div class="flex justify-between mb-2"><span class="text-xs font-bold">QR Scan</span><button onclick="stopQR()">✖</button></div>
-        <div id="qrBox"></div>
+<section class="bg-slate-900 rounded-3xl p-5 border border-amber-500/30 space-y-4">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+    <div>
+      <h2 class="text-lg font-extrabold text-white">📸 ටිකට් පත කැමරාවෙන් Scan කරන්න හෝ අංක ගහන්න</h2>
+      <p class="text-xs text-slate-400">පහත බටන් එක ඔබා ටිකට් එකේ ෆොටෝ එකක් ගන්න.</p>
     </div>
-</div>
-
-<div id="camMod" class="fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4">
-    <div class="bg-slate-900 rounded-2xl max-w-md w-full p-4">
-        <div class="flex justify-between mb-2"><span class="text-xs font-bold">ටිකට් අංක කොටුවට අල්ලන්න</span><button onclick="stopCam()">✖</button></div>
-        <video id="vid" autoplay playsinline class="w-full rounded-xl bg-black aspect-video object-cover"></video>
-        <canvas id="cvs" class="hidden"></canvas>
-        <button onclick="snapCam()" class="w-full mt-3 bg-emerald-500 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs">Scan Now</button>
+    <div class="flex gap-2 w-full md:w-auto">
+      <label class="flex-1 md:flex-none bg-emerald-500 text-slate-950 font-extrabold py-3 px-5 rounded-xl text-xs text-center shadow-lg">
+        📷 කැමරාවෙන් Scan කරන්න
+        <input type="file" id="camIn" accept="image/*" capture="environment" class="hidden" onchange="scanPhoto(event)">
+      </label>
     </div>
-</div>
+  </div>
+  <div id="ocrMsg" class="hidden p-3 rounded-xl bg-slate-950 border border-emerald-500 text-xs text-emerald-400 font-bold">
+    ⏳ ටිකට් පතේ අංක කියවමින් පවතී...
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+    <div class="md:col-span-4">
+      <label class="text-xs text-slate-400">ලොතරැයිය තෝරන්න</label>
+      <select id="selLotto" class="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-3 text-white text-sm mt-1"></select>
+    </div>
+    <div class="md:col-span-5">
+      <label class="text-xs text-slate-400">අකුර සහ අංක</label>
+      <input type="text" id="usrNums" placeholder="උදා: I 08 20 31 66" class="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-3 text-white font-mono text-sm mt-1">
+    </div>
+    <div class="md:col-span-3">
+      <button type="button" onclick="checkWin()" class="w-full bg-amber-500 text-slate-950 font-extrabold py-3 rounded-xl text-sm shadow-lg">🔍 දිනුම් පරීක්ෂා කරන්න</button>
+    </div>
+  </div>
+  <div id="winOut" class="hidden p-4 rounded-2xl bg-slate-950 border border-white/15"></div>
+</section>
+
+<section class="space-y-4">
+  <div class="flex flex-wrap gap-2">
+    <button type="button" onclick="setFilter('ALL')" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-amber-500 text-slate-950">සියල්ල (18)</button>
+    <button type="button" onclick="setFilter('NLB')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white">ජාතික (NLB)</button>
+    <button type="button" onclick="setFilter('DLB')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white">සංවර්ධන (DLB)</button>
+    <button type="button" onclick="setFilter('REEL')" class="px-4 py-2 rounded-xl text-xs font-bold bg-purple-900/60 text-purple-200">🎞️ Reels ලොතරැයි</button>
+  </div>
+  <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</section>
 
 <script>
-let lang='si', board='ALL', sound=true, qr=null, stream=null;
-const rawLottos = [
-    ["govisetha","NLB","BALL","ගොවිසෙත","Govisetha","4581","I",["08","20","31","66"],"රු. 64,250,000","#059669"],
-    ["mahajana-sampatha","NLB","REEL","මහජන සම්පත","Mahajana Sampatha","6339","V",["7","5","3","2","4","2"],"රු. 25,400,000","#2563eb"],
-    ["mega-power","NLB","BALL","මෙගා පවර්","Mega Power","2687","V",["11","10","16","48","59"],"රු. 210,000,000","#e11d48"],
-    ["dhana-nidhanaya","NLB","BALL","ධන නිධානය","Dhana Nidhanaya","2369","M",["19","34","67","69"],"රු. 82,000,000","#d97706"],
-    ["handahana","NLB","BALL","හඳහන","Handahana","1648","වෘෂභ",["23","26","42","62"],"රු. 15,000,000","#ea580c"],
-    ["ada-sampatha","NLB","REEL","අද සම්පත (Reels)","Ada Sampatha","0914","V",["4","24","324","2324"],"රු. 10,000,000","#7c3aed"],
-    ["nlb-jaya","NLB","REEL","NLB ජය (Reels)","NLB Jaya","0607","N",["6","8","6","7"],"රු. 5,000,000","#0284c7"],
-    ["suba-dawasak","NLB","BALL","සුබ දවසක් (Reels)","Suba Dawasak","0455","තුලා",["21","26","57"],"රු. 2,500,000","#db2777"],
-    ["ayubo","NLB","REEL","ආයුබෝ (Reels)","Ayubo","0002","J",["2","9","7","5"],"රු. 4,000,000","#0d9488"],
-    ["ada-kotipathi","DLB","BALL","අද කෝටිපති","Ada Kotipathi","3139","X",["12","25","28","62"],"රු. 51,445,669","#9333ea"],
-    ["lagna-wasana","DLB","BALL","ලග්න වාසනාව","Lagna Wasana","5025","සිංහ",["02","09","26","42"],"රු. 4,591,786","#d97706"],
-    ["super-ball","DLB","BALL","සුපර් බෝල්","Super Ball","3313","L",["03","22","32","55"],"රු. 85,651,920","#0284c7"],
-    ["shanida","DLB","BALL","ශනිදා","Shanida","5474","L",["11","36","38","53"],"රු. 56,457,140","#dc2626"],
-    ["kapruka","DLB","BALL","කෝටිපති කප්රුක","Kotipathi Kapruka","2489","C",["23","51","59","69","16"],"රු. 386,485,312","#16a34a"],
-    ["supiri-dhana-sampatha","DLB","REEL","සුපිරි ධන සම්පත","Supiri Dhana Sampatha","1047","T",["0","4","2","6","0","7"],"රු. 32,685,000","#ca8a04"],
-    ["jaya-sampatha","DLB","REEL","ජය සම්පත (Reels)","Jaya Sampatha","0521","T",["07","607","2607"],"රු. 250,000","#7c3aed"],
-    ["sasiri","DLB","BALL","සසිරි (Reels)","Sasiri","1143","DLB",["11","48","49"],"රු. 200,000","#2563eb"],
-    ["waasi","DLB","REEL","වාසි (Waasi Reels)","Waasi","0013","Q",["34","86","04"],"රු. 1,000,000","#65a30d"]
-];
-let lottos = rawLottos.map(x => ({id:x[0],board:x[1],style:x[2],si:x[3],en:x[4],drawNo:x[5],special:x[6],numbers:x[7],jackpot:x[8],col:x[9],date:"2026-10-14"}));
+let DATA = [];
+let lang = 'si', curFilter = 'ALL';
 
-function beep(f=500){if(!sound)return;try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=f;g.gain.value=0.1;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+0.1)}catch(e){}}
-
-function render(){
-    const q = document.getElementById('srch').value.toLowerCase();
-    document.getElementById('grid').innerHTML = lottos.filter(l => (board==='ALL'||l.board===board||(board==='REEL'&&l.style==='REEL')) && (l.si+l.en).toLowerCase().includes(q)).map(l => `
-        <div class="bg-slate-900/95 border border-white/15 rounded-3xl p-5 flex flex-col justify-between shadow-lg">
-            <div>
-                <div class="flex justify-between text-xs mb-1"><span class="px-2 py-0.5 rounded bg-white/10 font-bold">${l.board} • ${l.style}</span><span class="text-amber-400 font-mono">#${l.drawNo} | ${l.date}</span></div>
-                <h3 class="text-lg font-extrabold text-white">${lang==='si'?l.si:l.en}</h3>
-                <div id="box-${l.id}" class="flex flex-wrap items-center gap-2 my-3 p-3 bg-slate-950 rounded-2xl border border-white/10">
-                    <div class="ball px-3 h-10 rounded-full bg-amber-400 text-slate-950 font-black flex items-center justify-center text-xs">${l.special}</div>
-                    ${l.numbers.map(n => l.style==='REEL' ? `<div class="reel px-3 h-10 rounded-xl text-amber-300 font-mono font-black flex items-center justify-center text-sm">${n}</div>` : `<div style="background:${l.col}" class="ball w-10 h-10 rounded-full text-white font-black flex items-center justify-center text-sm">${n}</div>`).join('')}
-                </div>
-            </div>
-            <div class="pt-2 border-t border-white/10 space-y-2 text-xs">
-                <div class="flex justify-between"><span class="text-slate-400">ජයමල්ල:</span><b class="text-amber-300">${l.jackpot}</b></div>
-                <div class="no-print grid grid-cols-3 gap-1.5">
-                    <button onclick="beep(600);render()" class="bg-slate-800 py-1.5 rounded-xl text-amber-300 font-bold">🎲 Spin</button>
-                    <button onclick="speak('${l.id}')" class="bg-slate-800 py-1.5 rounded-xl text-sky-300 font-bold">🔊 අසන්න</button>
-                    <button onclick="share('${l.id}')" class="bg-emerald-500/20 py-1.5 rounded-xl text-emerald-300 font-bold">WhatsApp</button>
-                </div>
-            </div>
-        </div>`).join('');
+async function loadData() {
+  const res = await fetch('results.json?' + Date.now());
+  DATA = await res.json();
+  init();
 }
 
-function calcPrize(l, tkns){
-    const sp = tkns.includes(l.special.toUpperCase());
-    const win = l.numbers.map(n=>n.padStart(2,'0'));
-    let m = 0;
-    tkns.filter(t=>t!==l.special.toUpperCase()).forEach(u=>{if(win.includes(u.padStart(2,'0'))||l.numbers.includes(u))m++;});
-    return m>=4&&sp?50000000:m>=4?2000000:m===3&&sp?200000:m===3?4000:m===2&&sp?2000:m===2?200:m===1&&sp?200:(m===1||sp)?40:0;
+function renderCards() {
+  const g = document.getElementById('cardsGrid');
+  g.innerHTML = DATA.filter(l => curFilter==='ALL' || l.board===curFilter || (curFilter==='REEL' && l.style==='REEL')).map(l => `
+    <div class="bg-slate-900 border border-white/15 rounded-3xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span class="px-2.5 py-0.5 rounded-full bg-white/10 font-bold text-amber-300">${l.board} • ${l.style}</span>
+          <span class="text-slate-400 font-mono">#${l.drawNo} | ${l.date}</span>
+        </div>
+        <h3 class="text-lg font-extrabold text-white mt-1">${lang==='si'?l.si:l.en}</h3>
+        <div class="flex flex-xxl items-center gap-2 my-3 p-3 bg-slate-950 rounded-2xl border border-white/10 flex-wrap">
+          <div class="ball px-3 h-10 rounded-full bg-amber-400 text-slate-950 font-black flex items-center justify-center text-xs">${l.special}</div>
+          ${l.numbers.map(n => l.style==='REEL'
+            ? `<div class="reel px-3 h-10 rounded-xl text-amber-300 font-mono font-black flex items-center justify-center text-sm">${n}</div>`
+            : `<div style="background:${l.col}" class="ball w-10 h-10 rounded-full text-white font-black flex items-center justify-center text-sm">${n}</div>`
+          ).join('')}
+        </div>
+      </div>
+      <div class="pt-3 border-t border-white/10 space-y-2 text-xs">
+        <div class="flex justify-between"><span class="text-slate-400">මීළඟ ජයමල්ල:</span><b class="text-amber-300">${l.jackpot}</b></div>
+      </div>
+    </div>
+  `).join('');
 }
 
-function checkTkt(){
-    const l = lottos.find(x=>x.id===document.getElementById('lottoSel').value);
-    const raw = document.getElementById('tktIn').value.trim().toUpperCase();
-    if(!raw||!l)return;
-    let tkns = raw.split(/[\s,]+/);
-    if(l.style==='REEL'&&tkns.length===2&&tkns[1].length>=4) tkns=[tkns[0],...tkns[1].split('')];
-    const p = calcPrize(l, tkns);
-    if(p>0){beep(880);if(window.confetti)confetti();}else beep(220);
-    const winSet = [l.special.toUpperCase(),...l.numbers.map(n=>n.padStart(2,'0')),...l.numbers];
-    const box = document.getElementById('resBox');
-    box.classList.remove('hidden');
-    box.innerHTML = `<div class="flex flex-wrap justify-between items-center gap-3">
-        <div class="flex gap-2">${tkns.map(t=>`<span class="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs ${winSet.includes(t)\vert{}\vert{}winSet.includes(t.padStart(2,'0'))?'matched':'bg-slate-800'}">${t}</span>`).join('')}</div>
-        <div class="text-lg font-extrabold ${p>0?'text-emerald-400':'text-rose-400'}">${p>0?'🎉 දිනුම් මුදල: රු. '+p.toLocaleString():'මෙවර දිනුමක් නැත'}</div>
-    </div>`;
+function checkWin() {
+  const id = document.getElementById('selLotto').value;
+  const raw = document.getElementById('usrNums').value.trim().toUpperCase();
+  if (!raw) return alert('අංක ඇතුළත් කරන්න!');
+  const l = DATA.find(x => x.id === id);
+  let tkns = raw.split(/[\s,-]+/);
+  if (l.style === 'REEL' && tkns.length === 2 && tkns[1].length >= 4) tkns = [tkns[0], ...tkns[1].split('')];
+  const spMatch = tkns.includes(l.special.toUpperCase());
+  const winNums = l.numbers.map(n => n.padStart(2, '0'));
+  let m = 0;
+  tkns.filter(t => t !== l.special.toUpperCase()).forEach(u => {
+    if (winNums.includes(u.padStart(2, '0')) || l.numbers.includes(u)) m++;
+  });
+  const prize = m>=4&&spMatch?50000000:m>=4?2000000:m===3&&spMatch?200000:m===3?4000:m===2&&spMatch?2000:m===2?200:m===1&&spMatch?200:(m===1||spMatch)?40:0;
+  if (prize > 0 && window.confetti) confetti();
+  const winSet = [l.special.toUpperCase(), ...winNums, ...l.numbers];
+  const out = document.getElementById('winOut');
+  out.classList.remove('hidden');
+  out.innerHTML = `<div class="flex flex-wrap justify-between items-center gap-3">
+    <div class="flex gap-2">${tkns.map(t => `<span class="w-10 h-10 rounded-full flex items-center justify-center font-black text-xs ${winSet.includes(t)\vert{}\vert{}winSet.includes(t.padStart(2,'0'))?'matched':'bg-slate-800 text-slate-400'}">${t}</span>`).join('')}</div>
+    <div class="text-lg font-extrabold ${prize>0?'text-emerald-400':'text-rose-400'}">${prize>0?'🎉 දිනුම්: රු. '+prize.toLocaleString()+'.00':'මෙවර දිනුමක් නැත'}</div>
+  </div>`;
 }
 
-function startQR(){
-    document.getElementById('qrMod').classList.remove('hidden');
-    qr = new Html5Qrcode("qrBox");
-    qr.start({facingMode:"environment"},{fps:10,qrbox:200},txt=>{beep(1200);stopQR();parseOCR(txt.toUpperCase());},()=>{}).catch(()=>{stopQR();document.getElementById('fileIn').click();});
+async function scanPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const msg = document.getElementById('ocrMsg');
+  msg.classList.remove('hidden');
+  try {
+    const r = await Tesseract.recognize(URL.createObjectURL(file), 'eng');
+    const tkns = r.data.text.toUpperCase().replace(/[^A-Z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+    let ltr = '', nums = [];
+    for (const t of tkns) {
+      if (/^[A-Z]$/.test(t) && !ltr) ltr = t;
+      else if (/^\d{1,2}$/.test(t) && nums.length < 6) nums.push(t);
+    }
+    const final = [...(ltr?[ltr]:[]), ...nums];
+    if (final.length > 0) { document.getElementById('usrNums').value = final.join(' '); checkWin(); }
+    else { alert('අංක හඳුනාගත නොහැකි විය.'); }
+  } catch (err) { alert('දෝෂයකි.'); } finally { msg.classList.add('hidden'); }
 }
-function stopQR(){document.getElementById('qrMod').classList.add('hidden');if(qr){qr.stop().catch(()=>{});qr=null;}}
 
-async function startCam(){
-    try{
-        stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
-        document.getElementById('camMod').classList.remove('hidden');
-        document.getElementById('vid').srcObject = stream;
-    }catch(e){document.getElementById('fileIn').click();}
-}
-function stopCam(){document.getElementById('camMod').classList.add('hidden');if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}}
-async function snapCam(){
-    const v=document.getElementById('vid'), c=document.getElementById('cvs');
-    c.width=v.videoWidth; c.height=v.videoHeight;
-    c.getContext('2d').drawImage(v,0,0);
-    stopCam(); await runOCR(c.toDataURL('image/png'));
-}
-async function scanFile(e){if(e.target.files[0]) await runOCR(URL.createObjectURL(e.target.files[0]));}
+function setFilter(f) { curFilter = f; renderCards(); }
+function toggleLang() { lang = lang === 'si' ? 'en' : 'si'; init(); }
 
-async function runOCR(src){
-    const b=document.getElementById('ocrBox'), p=document.getElementById('ocrPct');
-    b.classList.remove('hidden');
-    try{
-        const r = await Tesseract.recognize(src,'eng',{logger:m=>{if(m.status==='recognizing text')p.innerText=Math.round(m.progress*100)+'%';}});
-        parseOCR(r.data.text.toUpperCase());
-    }finally{b.classList.add('hidden');}
+function init() {
+  document.getElementById('selLotto').innerHTML = DATA.map(l => `<option value="${l.id}">${l.board} - ${lang==='si'?l.si:l.en}</option>`).join('');
+  renderCards();
 }
-function parseOCR(txt){
-    const tkns = txt.replace(/[^A-Z0-9\s]/g,' ').split(/\s+/).filter(Boolean);
-    let ltr='', nums=[];
-    for(const t of tkns){if(/^[A-Z]$/.test(t)&&!ltr)ltr=t; else if(/^\d{1,2}$/.t
+loadData();
+</script>
+</body>
+</html>
