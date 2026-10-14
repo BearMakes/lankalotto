@@ -1,0 +1,34 @@
+name: Daily 10PM Lottery Auto-Scraper
+
+on:
+  schedule:
+    - cron: '35 16 * * *'
+    - cron: '45 16 * * *'
+  workflow_dispatch:
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 cloudscraper
+
+      - name: Run Lottery Scraper
+        run: python scraper.py
+
+      - name: Commit and Push updated results
+        run: |
+          git config --global user.name 'LankaLotto Bot'
+          git config --global user.email 'bot@lankalotto.lk'
+          git add results.json || true
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update lottery results" && git push)
