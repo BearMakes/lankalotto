@@ -1,292 +1,604 @@
 <!DOCTYPE html>
 <html lang="si" class="dark">
 <head>
-    <meta name="google-site-verification" content="f495qWxPMOADc0c5BAP6l_aS3f2WPHTv5GhHr1J5w3o" />
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LankaLotto - ශ්‍රී ලංකාවේ සියලුම ලොතරැයි ප්‍රතිඵල සහ සුපිරි විශ්ලේෂණ මධ්‍යස්ථානය</title>
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#f59e0b">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700;800&family=Noto+Sans+Tamil:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --ambient-glow: rgba(245, 158, 11, 0.15);
-        }
-        body {
-            font-family: 'Plus Jakarta Sans', 'Noto Sans Sinhala', 'Noto Sans Tamil', sans-serif;
-            background-color: #070b12;
-            color: #f8fafc;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        #ambientBackdrop {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            background: 
-                radial-gradient(circle at 50% 0%, var(--ambient-glow) 0%, transparent 65%),
-                radial-gradient(circle at 85% 25%, rgba(56, 189, 248, 0.05) 0%, transparent 50%);
-            transition: background 0.5s ease;
-        }
-
-        /* 3D Ball Physics */
-        @keyframes rollDrop {
-            0% { transform: translateY(-25px) scale(0.5) rotate(-120deg); opacity: 0; }
-            65% { transform: translateY(4px) scale(1.08) rotate(10deg); opacity: 1; }
-            100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
-        }
-        .ball-3d {
-            animation: rollDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            position: relative;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.45), inset 0 -4px 6px rgba(0,0,0,0.35), inset 0 3px 5px rgba(255,255,255,0.6);
-        }
-        .ball-3d::after {
-            content: '';
-            position: absolute;
-            top: 4px; left: 7px; width: 9px; height: 4px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.55);
-            transform: rotate(-25deg);
-        }
-
-        /* 3D Spinning Slot Reel */
-        @keyframes slotReelSpin {
-            0% { transform: translateY(-100%) rotateX(70deg); opacity: 0; filter: blur(3px); }
-            60% { transform: translateY(12%) rotateX(-15deg); opacity: 1; filter: blur(0px); }
-            100% { transform: translateY(0) rotateX(0deg); opacity: 1; }
-        }
-        .reel-slot {
-            animation: slotReelSpin 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 50%, #020617 100%);
-            box-shadow: inset 0 3px 6px rgba(0,0,0,0.8), 0 4px 10px rgba(0,0,0,0.4);
-            border: 1.5px solid rgba(251, 191, 36, 0.45);
-            position: relative;
-        }
-
-        .sweep-card {
-            position: relative;
-            backdrop-filter: blur(16px);
-            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-            overflow: hidden;
-        }
-        .sweep-card:hover { transform: translateY(-5px); }
-        .sweep-watermark {
-            position: absolute; right: -10px; bottom: -16px;
-            font-size: 7rem; opacity: 0.05;
-            transform: rotate(-15deg);
-            transition: all 0.4s ease;
-            pointer-events: none;
-        }
-        .sweep-card:hover .sweep-watermark { transform: rotate(-5deg) scale(1.08); opacity: 0.1; }
-
-        .matched-ball {
-            background: radial-gradient(circle at 30% 30%, #4ade80, #15803d) !important;
-            color: #000 !important;
-            box-shadow: 0 0 20px #22c55e !important;
-            transform: scale(1.12);
-        }
-
-        @keyframes scanLaser { 0%, 100% { top: 8%; } 50% { top: 88%; } }
-        .laser-line {
-            position: absolute; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, transparent, #10b981, #fbbf24, #10b981, transparent);
-            box-shadow: 0 0 12px #10b981;
-            animation: scanLaser 2s infinite ease-in-out;
-        }
-
-        @media print {
-            body { background: #fff !important; color: #000 !important; }
-            .no-print { display: none !important; }
-            .sweep-card { border: 1px solid #000 !important; break-inside: avoid; background: #fff !important; color: #000 !important; }
-        }
-    </style>
+<meta name="google-site-verification" content="f495qWxPMOADc0c5BAP6l_aS3f2WPHTv5GhHr1J5w3o" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LankaLotto - ශ්‍රී ලංකාවේ සියලුම ලොතරැයි ප්‍රතිඵල සහ සුපිරි විශ්ලේෂණ මධ්‍යස්ථානය</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#f59e0b">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root { --ambient-glow: rgba(245, 158, 11, 0.16); }
+body { font-family: 'Plus Jakarta Sans', 'Noto Sans Sinhala', sans-serif; background-color: #070b12; color: #f8fafc; min-height: 100vh; overflow-x: hidden; }
+#ambientBackdrop { position: fixed; inset: 0; pointer-events: none; z-index: 0; background: radial-gradient(circle at 50% 0%, var(--ambient-glow) 0%, transparent 65%); transition: background 0.5s ease; }
+@keyframes rollDrop { 0% { transform: translateY(-25px) scale(0.5) rotate(-120deg); opacity: 0; } 65% { transform: translateY(4px) scale(1.08); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+.ball-3d { animation: rollDrop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; position: relative; box-shadow: 0 6px 14px rgba(0,0,0,0.45), inset 0 -4px 6px rgba(0,0,0,0.35), inset 0 3px 5px rgba(255,255,255,0.6); }
+@keyframes slotSpin { 0% { transform: translateY(-80%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+.reel-slot { animation: slotSpin 0.45s ease-out forwards; background: linear-gradient(180deg, #1e293b, #020617); border: 1.5px solid rgba(251, 191, 36, 0.5); }
+.sweep-card { position: relative; backdrop-filter: blur(16px); transition: transform 0.3s ease; overflow: hidden; }
+.sweep-card:hover { transform: translateY(-4px); }
+.matched-ball { background: radial-gradient(circle at 30% 30%, #4ade80, #15803d) !important; color: #000 !important; box-shadow: 0 0 20px #22c55e !important; transform: scale(1.1); }
+@keyframes scanLaser { 0%, 100% { top: 8%; } 50% { top: 88%; } }
+.laser-line { position: absolute; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, #10b981, #fbbf24, #10b981, transparent); box-shadow: 0 0 12px #10b981; animation: scanLaser 2s infinite ease-in-out; }
+@media print { .no-print { display: none !important; } }
+</style>
 </head>
-<body class="antialiased selection:bg-amber-500 selection:text-black">
+<body class="antialiased">
+<div id="ambientBackdrop"></div>
 
-    <div id="ambientBackdrop"></div>
+<div class="no-print relative z-10 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 text-xs font-extrabold py-2 px-4 text-center flex flex-wrap items-center justify-center gap-2">
+    <span class="inline-block w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></span>
+    <span>රාත්‍රී 10:00 දිනුම් ඇදීමෙන් පසු NLB, DLB සහ Reels ලොතරැයි 18 ස්වයංක්‍රීයව යාවත්කාලීන වේ!</span>
+    <span id="countdownTimer" class="bg-slate-950 text-amber-400 px-2.5 py-0.5 rounded-md font-mono text-xs">00:00:00</span>
+</div>
 
-    <!-- Top Live Notification Bar -->
-    <div class="no-print relative z-10 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 text-xs md:text-sm font-extrabold py-2 px-4 text-center flex flex-wrap items-center justify-center gap-2 shadow-md">
-        <span class="inline-block w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></span>
-        <span>රාත්‍රී 10:00 දිනුම් ඇදීමෙන් පසු NLB, DLB සහ සියලුම Reels ලොතරැයි 18 ස්වයංක්‍රීයව යාවත්කාලීන වේ!</span>
-        <span id="countdownTimer" class="bg-slate-950 text-amber-400 px-2.5 py-0.5 rounded-md font-mono text-xs">00:00:00</span>
+<header class="relative z-10 max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-white/10">
+    <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-slate-950 text-xl font-black shadow-lg">
+            <i class="fa-solid fa-clover"></i>
+        </div>
+        <div>
+            <h1 class="text-2xl font-extrabold text-white">Lanka<span class="text-amber-400">Lotto</span> <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-full">SUPREME</span></h1>
+            <p class="text-xs text-slate-400">ශ්‍රී ලංකාවේ සියලුම NLB, DLB සහ Reels ලොතරැයි ප්‍රතිඵල</p>
+        </div>
     </div>
+    <div class="no-print flex flex-wrap items-center gap-2">
+        <button onclick="toggleSound()" class="bg-slate-900 border border-white/10 text-amber-400 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5">
+            <i id="soundIcon" class="fa-solid fa-volume-high"></i> <span id="soundText">Sound On</span>
+        </button>
+        <button onclick="window.print()" class="bg-slate-900 border border-white/10 text-slate-300 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-print text-sky-400"></i> <span>Print</span>
+        </button>
+        <div class="flex bg-slate-900 p-1 rounded-xl border border-white/10">
+            <button onclick="setLanguage('si')" id="btn-si" class="px-3 py-1 rounded-lg text-xs font-bold bg-amber-500 text-black">සිංහල</button>
+            <button onclick="setLanguage('en')" id="btn-en" class="px-3 py-1 rounded-lg text-xs font-bold text-slate-300">English</button>
+        </div>
+    </div>
+</header>
 
-    <!-- Header -->
-    <header class="relative z-10 max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-white/10">
-        <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center text-slate-950 text-2xl font-black shadow-lg shadow-amber-500/25">
-                <i class="fa-solid fa-clover"></i>
-            </div>
+<main class="relative z-10 max-w-7xl mx-auto px-4 py-6 space-y-8">
+    <!-- SECTION 1: Scanner & Checker -->
+    <section class="no-print bg-slate-900/80 backdrop-blur-xl rounded-3xl p-5 md:p-7 border border-white/10 shadow-2xl">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
             <div>
-                <div class="flex items-center gap-2">
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
-                        Lanka<span class="text-amber-400">Lotto</span>
-                    </h1>
-                    <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">SUPREME EDITION</span>
-                </div>
-                <p class="text-xs text-slate-400">ශ්‍රී ලංකාවේ සියලුම NLB, DLB සහ Reels ලොතරැයි ප්‍රතිඵල සහ සුපිරි මෙවලම්</p>
+                <span class="bg-amber-500/15 text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/30">SMART SCANNER & PRIZE CALCULATOR</span>
+                <h2 class="text-xl font-extrabold mt-2 text-white">ටිකට් පත Scan කර හෝ අංක ඇතුළත් කර දිනුම් මුදල බලන්න</h2>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                <button onclick="openQRModal(false)" class="flex-1 lg:flex-none bg-sky-600 hover:bg-sky-500 text-white font-extrabold py-2.5 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-qrcode"></i> <span>QR Scan</span>
+                </button>
+                <button onclick="openQRModal(true)" class="flex-1 lg:flex-none bg-purple-600 hover:bg-purple-500 text-white font-extrabold py-2.5 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-layer-group"></i> <span>Bulk Scan</span>
+                </button>
+                <button onclick="openCameraModal()" class="flex-1 lg:flex-none bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-2.5 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-camera"></i> <span>Live කැමරාව</span>
+                </button>
+                <label class="flex-1 lg:flex-none cursor-pointer bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-2.5 px-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-camera-retro"></i> <span>Photo ගහන්න</span>
+                    <input type="file" id="ticketFileInput" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event)">
+                </label>
             </div>
         </div>
 
-        <div class="no-print flex flex-wrap items-center gap-2">
-            <button onclick="toggleSound()" class="bg-slate-900/90 hover:bg-slate-800 border border-white/10 text-amber-400 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                <i id="soundIcon" class="fa-solid fa-volume-high"></i>
-                <span id="soundText" class="hidden sm:inline">Sound On</span>
-            </button>
-
-            <button onclick="window.print()" class="bg-slate-900/90 hover:bg-slate-800 border border-white/10 text-slate-300 hover:text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                <i class="fa-solid fa-print text-sky-400"></i>
-                <span class="hidden sm:inline">Print Sheet</span>
-            </button>
-
-            <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10">
-                <button onclick="setLanguage('si')" id="btn-si" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-black transition">සිංහල</button>
-                <button onclick="setLanguage('ta')" id="btn-ta" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition">தமிழ்</button>
-                <button onclick="setLanguage('en')" id="btn-en" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition">English</button>
+        <div id="ocrStatusBox" class="hidden mb-4 p-3.5 rounded-2xl bg-slate-950 border border-emerald-500/40">
+            <div class="flex justify-between text-xs font-bold text-emerald-400 mb-1">
+                <span><i class="fa-solid fa-spinner fa-spin mr-1"></i> ටිකට් පතේ අංක කියවමින් පවතී...</span>
+                <span id="ocrProgressPercent">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div id="ocrProgressBar" class="bg-emerald-400 h-full w-0 transition-all"></div>
             </div>
         </div>
-    </header>
 
-    <main class="relative z-10 max-w-7xl mx-auto px-4 py-8 space-y-10">
-
-        <!-- SECTION 1: Smart Ticket Scanner & Exact Prize Calculator -->
-        <section class="no-print bg-slate-900/75 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-white/10 shadow-2xl">
-            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
-                <div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="bg-amber-500/15 text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/30">
-                            <i class="fa-solid fa-ticket mr-1"></i> SMART PRIZE & CLAIM ADVISOR
-                        </span>
-                        <span class="bg-purple-500/15 text-purple-300 text-xs font-bold px-3 py-1 rounded-full border border-purple-500/30">
-                            <i class="fa-solid fa-sliders mr-1"></i> REEL & BALL ORDER SUPPORTED
-                        </span>
-                    </div>
-                    <h2 class="text-xl md:text-2xl font-extrabold mt-2 text-white">ටිකට් පත Scan කර හෝ අංක ඇතුළත් කර දිනුම් මුදල බලන්න</h2>
-                    <p class="text-xs sm:text-sm text-slate-400">දිනුම් මුදල, 14% බද්ද සහ දිනුම් මුදල ලබාගත හැකි නිල ස්ථානය ක්ෂණිකව පෙන්වයි.</p>
-                </div>
-
-                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                    <button onclick="openQRModal(false)" class="flex-1 lg:flex-none bg-gradient-to-r from-sky-500 to-blue-600 text-white font-extrabold py-2.5 px-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-1.5 text-xs">
-                        <i class="fa-solid fa-qrcode"></i> <span>QR Scan</span>
-                    </button>
-                    <button onclick="openQRModal(true)" class="flex-1 lg:flex-none bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-extrabold py-2.5 px-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-1.5 text-xs">
-                        <i class="fa-solid fa-layer-group"></i> <span>Bulk Scan</span>
-                    </button>
-                    <button onclick="openCameraModal()" class="flex-1 lg:flex-none bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-extrabold py-2.5 px-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-1.5 text-xs">
-                        <i class="fa-solid fa-camera"></i> <span>අංක OCR Scan</span>
-                    </button>
-                    <label class="flex-1 lg:flex-none cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 px-3.5 rounded-xl border border-white/15 transition flex items-center justify-center gap-1.5 text-xs">
-                        <i class="fa-solid fa-image text-amber-400"></i> <span>Photo</span>
-                        <input type="file" id="ticketFileInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                    </label>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+            <div class="md:col-span-4">
+                <label class="block text-xs text-slate-300 mb-1">ලොතරැයිය තෝරන්න (18)</label>
+                <select id="checkLotterySelect" onchange="updateInputPlaceholder()" class="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-3 text-white font-semibold text-sm"></select>
             </div>
-
-            <div id="ocrStatusBox" class="hidden mb-6 p-4 rounded-2xl bg-slate-950/90 border border-emerald-500/40">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-bold text-emerald-400 flex items-center gap-2">
-                        <i class="fa-solid fa-spinner fa-spin"></i> ටිකට් පතේ අංක කියවමින් පවතී...
-                    </span>
-                    <span id="ocrProgressPercent" class="text-xs font-mono text-slate-400">0%</span>
-                </div>
-                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div id="ocrProgressBar" class="bg-gradient-to-r from-emerald-400 to-amber-400 h-full w-0 transition-all duration-300"></div>
-                </div>
+            <div class="md:col-span-4">
+                <label class="block text-xs text-slate-300 mb-1">අකුර සහ අංක ඇතුළත් කරන්න</label>
+                <input type="text" id="userTicketInput" placeholder="උදා: I 08 20 31 66" class="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-3 text-white font-mono text-sm">
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
-                <div class="md:col-span-4">
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">ලොතරැයිය තෝරන්න (සියලුම ලොතරැයි 18)</label>
-                    <select id="checkLotterySelect" onchange="updateInputPlaceholder()" class="w-full bg-slate-950 border border-white/15 rounded-xl px-4 py-3 text-white font-semibold focus:outline-none focus:border-amber-400"></select>
-                </div>
-                <div class="md:col-span-4">
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">අකුර සහ අංක ඇතුළත් කරන්න</label>
-                    <input type="text" id="userTicketInput" placeholder="උදා: I 08 20 31 66" class="w-full bg-slate-950 border border-white/15 rounded-xl px-4 py-3 text-white font-mono text-base focus:outline-none focus:border-amber-400">
-                </div>
-                <div class="md:col-span-2">
-                    <button onclick="checkUserTicket()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-magnifying-glass"></i> <span>දිනුම් බලන්න</span>
-                    </button>
-                </div>
-                <div class="md:col-span-2">
-                    <button onclick="saveTicketToVault()" class="w-full bg-slate-800 hover:bg-slate-700 border border-amber-500/30 text-amber-300 font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-bookmark"></i> <span>Vault දාන්න</span>
-                    </button>
-                </div>
-            </div>
-
-            <div id="ticketCheckResult" class="hidden mt-6 p-5 rounded-2xl bg-slate-950/90 border border-white/15"></div>
-        </section>
-
-        <!-- SECTION 2: 18 Lottery Results Grid -->
-        <section>
-            <div class="no-print flex flex-col lg:flex-row justify-between items-center gap-4 mb-6">
-                <div class="flex flex-wrap items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-white/10 w-full lg:w-auto">
-                    <button onclick="filterBoard('ALL')" id="tab-ALL" class="flex-1 lg:flex-none px-3.5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 text-black transition">සියල්ල (18)</button>
-                    <button onclick="filterBoard('NLB')" id="tab-NLB" class="flex-1 lg:flex-none px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition">ජාතික (NLB - 9)</button>
-                    <button onclick="filterBoard('DLB')" id="tab-DLB" class="flex-1 lg:flex-none px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition">සංවර්ධන (DLB - 9)</button>
-                    <button onclick="filterBoard('REEL')" id="tab-REEL" class="flex-1 lg:flex-none px-3.5 py-2 rounded-xl text-xs font-bold text-purple-300 hover:text-white transition flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-film"></i> <span>Reels / රෝද ලොතරැයි (8)</span>
-                    </button>
-                </div>
-
-                <div class="flex items-center gap-3 w-full lg:w-auto">
-                    <input type="date" id="dateFilter" onchange="renderLotteries()" class="bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white">
-                    <div class="relative w-full lg:w-64">
-                        <i class="fa-solid fa-search absolute left-3.5 top-2.5 text-slate-400 text-xs"></i>
-                        <input type="text" id="searchLottery" oninput="renderLotteries()" placeholder="ලොතරැයිය සොයන්න..." class="w-full bg-slate-900 border border-white/15 rounded-xl pl-9 pr-4 py-2 text-xs sm:text-sm text-white">
-                    </div>
-                </div>
-            </div>
-
-            <div id="lotteryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </section>
-
-        <!-- ========================================================================= -->
-        <!-- SECTION 3: WORLD-FIRST SUPREME FEATURES COMMAND CENTER (TABBED INTERFACE) -->
-        <!-- ========================================================================= -->
-        <section class="no-print bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-amber-500/30 shadow-2xl">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div>
-                    <span class="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
-                        <i class="fa-solid fa-crown mr-1"></i> WORLD-CLASS SUPREME TOOLS
-                    </span>
-                    <h2 class="text-xl md:text-2xl font-extrabold mt-2 text-white">ලෝකයේ වෙනත් කිසිම ලොතරැයි අඩවියක නැති සුපිරි පහසුකම්</h2>
-                </div>
-            </div>
-
-            <!-- Interactive Supreme Tabs Navigation -->
-            <div class="flex flex-wrap gap-2 pb-6 border-b border-white/10">
-                <button onclick="switchSupremeTab('timemachine')" id="sup-tab-timemachine" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-amber-500 text-slate-950 transition flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left"></i> <span>1. පරණ දිනුම් කාල යන්ත්‍රය</span>
-                </button>
-                <button onclick="switchSupremeTab('heatmap')" id="sup-tab-heatmap" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-950 text-slate-300 hover:text-white border border-white/10 transition flex items-center gap-2">
-                    <i class="fa-solid fa-fire-flame-curved text-rose-400"></i> <span>2. 1-80 උෂ්ණත්ව සහ මිතුරු අංක</span>
-                </button>
-                <button onclick="switchSupremeTab('wheeling')" id="sup-tab-wheeling" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-950 text-slate-300 hover:text-white border border-white/10 transition flex items-center gap-2">
-                    <i class="fa-solid fa-cubes-stacked text-emerald-400"></i> <span>3. ගණිතමය Wheeling පැකේජ</span>
-                </button>
-                <button onclick="switchSupremeTab('syndicate')" id="sup-tab-syndicate" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-950 text-slate-300 hover:text-white border border-white/10 transition flex items-center gap-2">
-                    <i class="fa-solid fa-users-viewfinder text-sky-400"></i> <span>4. හවුල් ටිකට් බෙදනය</span>
-                </button>
-                <button onclick="switchSupremeTab('dreams')" id="sup-tab-dreams" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-950 text-slate-300 hover:text-white border border-white/10 transition flex items-center gap-2">
-                    <i class="fa-solid fa-moon text-purple-400"></i> <span>5. සිහින සහ ලග්න අංක</span>
+            <div class="md:col-span-2">
+                <button onclick="checkUserTicket()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3 px-4 rounded-xl text-sm">
+                    <i class="fa-solid fa-magnifying-glass mr-1"></i> දිනුම් බලන්න
                 </button>
             </div>
+            <div class="md:col-span-2">
+                <button onclick="saveTicketToVault()" class="w-full bg-slate-800 hover:bg-slate-700 border border-amber-500/30 text-amber-300 font-bold py-3 px-4 rounded-xl text-sm">
+                    <i class="fa-solid fa-bookmark mr-1"></i> Vault දාන්න
+                </button>
+            </div>
+        </div>
+        <div id="ticketCheckResult" class="hidden mt-5 p-4 rounded-2xl bg-slate-950 border border-white/15"></div>
+    </section>
 
-            <!-- TAB 1: "WHAT-IF" HISTORICAL TIME MACHINE SIMULATOR -->
-            <div id="sup-panel-timemachine" class="pt-6">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                    <div class="lg:col-span-5 space-y-4">
-                        <h3 class="text-lg font-extrabold text-amber-400">ඔබ හැමදාම ගන්නා අංක 4 පසුගිය වසර 5 පුරාම ගත්තා නම් කුමක් වේද?</h3>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            ඔබේ ප්‍රියතම අංක 4 පහතින් ඇතුළත් කරන්න. පසුගිය දිනුම් වාර 1,800 ක දත්ත හරහා ඔබේ අංක පෙළට කී වතාවක් දිනුම් ඇදී ඇත්ද සහ කොපමණ මුදලක් දිනාගත හැකිව තිබුණාද යන්න ක්ෂණිකව බලන්න.
-                        </p>
-                        <div class="fle
+    <!-- SECTION 2: 18 Lotteries -->
+    <section>
+        <div class="no-print flex flex-col lg:flex-row justify-between items-center gap-3 mb-5">
+            <div class="flex flex-wrap gap-1.5 bg-slate-900 p-1.5 rounded-2xl border border-white/10 w-full lg:w-auto">
+                <button onclick="filterBoard('ALL')" id="tab-ALL" class="flex-1 lg:flex-none px-3.5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 text-black">සියල්ල (18)</button>
+                <button onclick="filterBoard('NLB')" id="tab-NLB" class="flex-1 lg:flex-none px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300">ජාතික (NLB)</button>
+                <button onclick="filterBoard('DLB')" id="tab-DLB" class="flex-1 lg:flex-none px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300">සංවර්ධන (DLB)</button>
+                <button onclick="filterBoard('REEL')" id="tab-REEL" class="flex-1 lg:flex-none px-3.5 py-2 rounded-xl text-xs font-bold text-purple-300">Reels ලොතරැයි (8)</button>
+            </div>
+            <input type="text" id="searchLottery" oninput="renderLotteries()" placeholder="ලොතරැයිය සොයන්න..." class="w-full lg:w-64 bg-slate-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white">
+        </div>
+        <div id="lotteryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+    <!-- SECTION 3: Supreme Tools -->
+    <section class="no-print bg-slate-900/80 rounded-3xl p-5 md:p-7 border border-amber-500/30">
+        <h2 class="text-lg md:text-xl font-extrabold text-white mb-4"><i class="fa-solid fa-crown text-amber-400 mr-1.5"></i> LankaLotto Supreme Tools</h2>
+        <div class="flex flex-wrap gap-2 pb-4 border-b border-white/10">
+            <button onclick="switchSupremeTab('timemachine')" id="sup-tab-timemachine" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 text-slate-950">1. පරණ දිනුම් කාල යන්ත්‍රය</button>
+            <button onclick="switchSupremeTab('heatmap')" id="sup-tab-heatmap" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-950 text-slate-300 border border-white/10">2. 1-80 උෂ්ණත්ව සහ මිතුරු අංක</button>
+            <button onclick="switchSupremeTab('wheeling')" id="sup-tab-wheeling" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-950 text-slate-300 border border-white/10">3. Wheeling ටිකට් පැකේජ</button>
+            <button onclick="switchSupremeTab('syndicate')" id="sup-tab-syndicate" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-950 text-slate-300 border border-white/10">4. හවුල් ටිකට් බෙදනය</button>
+            <button onclick="switchSupremeTab('dreams')" id="sup-tab-dreams" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-950 text-slate-300 border border-white/10">5. සිහින සහ ලග්න අංක</button>
+        </div>
+
+        <div id="sup-panel-timemachine" class="pt-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+            <div class="lg:col-span-5 space-y-3">
+                <h3 class="text-sm font-extrabold text-amber-400">ඔබේ ප්‍රියතම අංක 4 පසුගිය වසර 5 පුරාම ගත්තා නම්?</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="tmInput" value="07 23 45 68" class="flex-1 bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-white font-mono text-sm">
+                    <button onclick="runTimeMachine()" class="bg-amber-500 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl text-xs">පරීක්ෂා කරන්න</button>
+                </div>
+            </div>
+            <div id="tmResultBox" class="lg:col-span-7 bg-slate-950 border border-white/10 rounded-2xl p-4"></div>
+        </div>
+
+        <div id="sup-panel-heatmap" class="hidden pt-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div id="heatmapGrid" class="lg:col-span-8 grid grid-cols-8 sm:grid-cols-10 gap-1.5"></div>
+            <div id="companionBox" class="lg:col-span-4 bg-slate-950 border border-amber-500/30 rounded-2xl p-4"></div>
+        </div>
+
+        <div id="sup-panel-wheeling" class="hidden pt-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-5 space-y-3">
+                <h3 class="text-sm font-extrabold text-emerald-400">ඔබ කැමති අංක 6ක් දී ටිකට් 5ක සුපිරි සංයෝජනය ලබාගන්න:</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="wheelInput" value="05 14 27 38 51 69" class="flex-1 bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-white font-mono text-sm">
+                    <button onclick="generateWheelTickets()" class="bg-emerald-500 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl text-xs">හදන්න</button>
+                </div>
+            </div>
+            <div id="wheelOutput" class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+        </div>
+
+        <div id="sup-panel-syndicate" class="hidden pt-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-6 space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-xs text-slate-400">සාමාජික ගණන</label><input type="number" id="synMembers" value="4" oninput="calculateSyndicate()" class="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-white"></div>
+                    <div><label class="text-xs text-slate-400">දිනූ මුදල (රු.)</label><input type="number" id="synJackpot" value="50000000" oninput="calculateSyndicate()" class="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-white"></div>
+                </div>
+                <input type="text" id="synNotes" value="කමල්, නිමල්, සුනිල් | ගොවිසෙත: I-08-20-31-66" oninput="calculateSyndicate()" class="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-white text-xs">
+            </div>
+            <div id="syndicateResultBox" class="lg:col-span-6 bg-slate-950 border border-sky-500/30 rounded-2xl p-4"></div>
+        </div>
+
+        <div id="sup-panel-dreams" class="hidden pt-5 grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div class="bg-slate-950 p-4 rounded-2xl border border-purple-500/30">
+                <select id="dreamSelect" onchange="decodeDream()" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white font-bold mb-3">
+                    <option value="elephant">🐘 සුදු ඇතෙක් හෝ අලියෙක් දැකීම (ධන ලාභ)</option>
+                    <option value="snake">🐍 නාගයෙක් හෝ සර්පයෙක් දැකීම (භූමි ලාභ)</option>
+                    <option value="water">🌊 පිරිසිදු ජලය / දිය ඇල්ලක් දැකීම</option>
+                    <option value="gold">👑 රත්තරන් ආභරණ හෝ මැණික් දැකීම</option>
+                    <option value="money">💵 මුදල් නෝට්ටු හෝ කාසි අහුලා ගැනීම</option>
+                </select>
+                <div id="dreamResultBox" class="p-3 rounded-xl bg-slate-900 text-center"></div>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-2xl border border-amber-500/30">
+                <div class="flex gap-2 mb-3">
+                    <select id="userLagna" class="flex-1 bg-slate-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white font-bold">
+                        <option>මේෂ</option><option>වෘෂභ</option><option>මිථුන</option><option>කටක</option><option>සිංහ</option><option>කන්‍යා</option><option>තුලා</option><option>වෘශ්චික</option><option>ධනු</option><option>මකර</option><option>කුම්භ</option><option>මීන</option>
+                    </select>
+                    <button onclick="generateAstroPick()" class="bg-amber-500 text-slate-950 font-extrabold px-4 py-2 rounded-xl text-xs">ලග්න අංක</button>
+                </div>
+                <div id="aiPickContainer" class="flex items-center justify-center gap-2.5 py-2"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: Vault -->
+    <section class="no-print bg-slate-900/80 rounded-3xl p-5 border border-white/10">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="text-sm font-extrabold text-white"><i class="fa-solid fa-wallet text-emerald-400 mr-1.5"></i> මගේ ටිකට් පසුම්බිය (Ticket Vault)</h3>
+            <div class="flex gap-3 text-xs font-bold">
+                <span>වියදම: <b id="vaultTotalSpent" class="text-rose-400">රු. 0</b></span>
+                <span>දිනුම: <b id="vaultTotalWon" class="text-emerald-400">රු. 0</b></span>
+                <button onclick="clearVault()" class="text-slate-400 hover:text-rose-400"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        </div>
+        <div id="vaultList" class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs"></div>
+    </section>
+</main>
+
+<!-- QR Modal -->
+<div id="qrModal" class="no-print fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-white/15 rounded-3xl max-w-md w-full p-5">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="text-sm font-extrabold text-white">QR / Barcode එක කැමරාවට අල්ලන්න</h3>
+            <button onclick="closeQRModal()" class="w-8 h-8 rounded-full bg-slate-800 text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="qrReader" class="rounded-2xl overflow-hidden bg-black"></div>
+        <div id="bulkScanLog" class="hidden mt-3 max-h-36 overflow-y-auto space-y-1 p-2 bg-slate-950 rounded-xl text-xs"></div>
+    </div>
+</div>
+
+<!-- Camera OCR Modal -->
+<div id="cameraModal" class="no-print fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-white/15 rounded-3xl max-w-lg w-full p-5">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="text-sm font-extrabold text-white">ටිකට් පතේ අංක පෙළ කොටුව තුළට අල්ලන්න</h3>
+            <button onclick="closeCameraModal()" class="w-8 h-8 rounded-full bg-slate-800 text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="relative rounded-2xl overflow-hidden bg-black aspect-video flex items-center justify-center">
+            <video id="cameraVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+            <div class="w-4/5 h-20 border-2 border-emerald-400 rounded-xl absolute pointer-events-none"><div class="laser-line"></div></div>
+        </div>
+        <canvas id="ocrCanvas" class="hidden"></canvas>
+        <button onclick="captureAndScanFrame()" class="w-full mt-4 bg-emerald-500 text-slate-950 font-extrabold py-3 rounded-xl text-sm">Scan Numbers Now</button>
+    </div>
+</div>
+
+<script>
+let currentLang = 'si', currentBoard = 'ALL', soundEnabled = true, videoStream = null, html5QrScanner = null, audioCtx = null;
+
+const THEMES = {
+    emerald: { cardBg: "from-emerald-950/85 to-slate-900", border: "border-emerald-500/40", badge: "bg-emerald-500/20 text-emerald-300", ballGrad: "radial-gradient(circle at 30% 30%, #34d399, #059669)", ambient: "rgba(16,185,129,0.22)" },
+    blue: { cardBg: "from-blue-950/85 to-slate-900", border: "border-blue-500/40", badge: "bg-blue-500/20 text-blue-300", ballGrad: "radial-gradient(circle at 30% 30%, #60a5fa, #2563eb)", ambient: "rgba(59,130,246,0.22)" },
+    rose: { cardBg: "from-rose-950/85 to-slate-900", border: "border-rose-500/40", badge: "bg-rose-500/20 text-rose-300", ballGrad: "radial-gradient(circle at 30% 30%, #fb7185, #e11d48)", ambient: "rgba(244,63,94,0.22)" },
+    amber: { cardBg: "from-amber-950/85 to-slate-900", border: "border-amber-500/40", badge: "bg-amber-500/20 text-amber-300", ballGrad: "radial-gradient(circle at 30% 30%, #fbbf24, #d97706)", ambient: "rgba(245,158,11,0.22)" },
+    purple: { cardBg: "from-purple-950/85 to-slate-900", border: "border-purple-500/40", badge: "bg-purple-500/20 text-purple-300", ballGrad: "radial-gradient(circle at 30% 30%, #c084fc, #9333ea)", ambient: "rgba(168,85,247,0.22)" },
+    cyan: { cardBg: "from-cyan-950/85 to-slate-900", border: "border-cyan-500/40", badge: "bg-cyan-500/20 text-cyan-300", ballGrad: "radial-gradient(circle at 30% 30%, #38bdf8, #0284c7)", ambient: "rgba(6,182,212,0.22)" }
+};
+
+let lotteryData = [
+    { id: "govisetha", board: "NLB", drawStyle: "BALL", isReel: false, kw: ["GOVISETHA"], name: { si: "ගොවිසෙත", en: "Govisetha" }, drawNo: "4581", date: "2026-10-14", special: "I", numbers: ["08", "20", "31", "66"], jackpot: "රු. 64,250,000", c: "emerald" },
+    { id: "mahajana-sampatha", board: "NLB", drawStyle: "REEL", isReel: false, kw: ["MAHAJANA"], name: { si: "මහජන සම්පත", en: "Mahajana Sampatha" }, drawNo: "6339", date: "2026-10-14", special: "V", numbers: ["7", "5", "3", "2", "4", "2"], jackpot: "රු. 25,400,000", c: "blue" },
+    { id: "mega-power", board: "NLB", drawStyle: "BALL", isReel: false, kw: ["MEGA"], name: { si: "මෙගා පවර්", en: "Mega Power" }, drawNo: "2687", date: "2026-10-14", special: "V", numbers: ["11", "10", "16", "48", "59"], jackpot: "රු. 210,000,000", c: "rose" },
+    { id: "dhana-nidhanaya", board: "NLB", drawStyle: "BALL", isReel: false, kw: ["DHANA"], name: { si: "ධන නිධානය", en: "Dhana Nidhanaya" }, drawNo: "2369", date: "2026-10-14", special: "M", numbers: ["19", "34", "67", "69"], jackpot: "රු. 82,000,000", c: "amber" },
+    { id: "handahana", board: "NLB", drawStyle: "BALL", isReel: true, kw: ["HANDAHANA"], name: { si: "හඳහන", en: "Handahana" }, drawNo: "1648", date: "2026-10-14", special: "වෘෂභ", numbers: ["23", "26", "42", "62"], jackpot: "රු. 15,000,000", c: "amber" },
+    { id: "ada-sampatha", board: "NLB", drawStyle: "REEL", isReel: true, kw: ["ADA SAMPATHA"], name: { si: "අද සම්පත (Reels)", en: "Ada Sampatha" }, drawNo: "0914", date: "2026-10-14", special: "V", numbers: ["4", "24", "324", "2324"], jackpot: "රු. 10,000,000", c: "purple" },
+    { id: "nlb-jaya", board: "NLB", drawStyle: "REEL", isReel: true, kw: ["JAYA"], name: { si: "NLB ජය (Reels)", en: "NLB Jaya" }, drawNo: "0607", date: "2026-10-14", special: "N", numbers: ["6", "8", "6", "7"], jackpot: "රු. 5,000,000", c: "cyan" },
+    { id: "suba-dawasak", board: "NLB", drawStyle: "BALL", isReel: true, kw: ["SUBA"], name: { si: "සුබ දවසක් (Reels)", en: "Suba Dawasak" }, drawNo: "0455", date: "2026-10-14", special: "තුලා", numbers: ["21", "26", "57"], jackpot: "රු. 2,500,000", c: "rose" },
+    { id: "ayubo", board: "NLB", drawStyle: "REEL", isReel: true, kw: ["AYUBO"], name: { si: "ආයුබෝ (Ayubo Reels)", en: "Ayubo" }, drawNo: "0002", date: "2026-10-14", special: "J", numbers: ["2", "9", "7", "5"], jackpot: "රු. 4,000,000", c: "emerald" },
+    { id: "ada-kotipathi", board: "DLB", drawStyle: "BALL", isReel: false, kw: ["KOTIPATHI"], name: { si: "අද කෝටිපති", en: "Ada Kotipathi" }, drawNo: "3139", date: "2026-10-14", special: "X", numbers: ["12", "25", "28", "62"], jackpot: "රු. 51,445,669", c: "purple" },
+    { id: "lagna-wasana", board: "DLB", drawStyle: "BALL", isReel: false, kw: ["LAGNA"], name: { si: "ලග්න වාසනාව", en: "Lagna Wasana" }, drawNo: "5025", date: "2026-10-14", special: "සිංහ", numbers: ["02", "09", "26", "42"], jackpot: "රු. 4,591,786", c: "amber" },
+    { id: "super-ball", board: "DLB", drawStyle: "BALL", isReel: false, kw: ["SUPER"], name: { si: "සුපර් බෝල්", en: "Super Ball" }, drawNo: "3313", date: "2026-10-14", special: "L", numbers: ["03", "22", "32", "55"], jackpot: "රු. 85,651,920", c: "cyan" },
+    { id: "shanida", board: "DLB", drawStyle: "BALL", isReel: false, kw: ["SHANIDA"], name: { si: "ශනිදා", en: "Shanida" }, drawNo: "5474", date: "2026-10-14", special: "L", numbers: ["11", "36", "38", "53"], jackpot: "රු. 56,457,140", c: "rose" },
+    { id: "kapruka", board: "DLB", drawStyle: "BALL", isReel: false, kw: ["KAPRUKA"], name: { si: "කෝටිපති කප්රුක", en: "Kotipathi Kapruka" }, drawNo: "2489", date: "2026-10-14", special: "C", numbers: ["23", "51", "59", "69", "16"], jackpot: "රු. 386,485,312", c: "emerald" },
+    { id: "supiri-dhana-sampatha", board: "DLB", drawStyle: "REEL", isReel: false, kw: ["SUPIRI"], name: { si: "සුපිරි ධන සම්පත", en: "Supiri Dhana Sampatha" }, drawNo: "1047", date: "2026-10-14", special: "T", numbers: ["0", "4", "2", "6", "0", "7"], jackpot: "රු. 32,685,000", c: "amber" },
+    { id: "jaya-sampatha", board: "DLB", drawStyle: "REEL", isReel: true, kw: ["JAYA SAMPATHA"], name: { si: "ජය සම්පත (Reels)", en: "Jaya Sampatha" }, drawNo: "0521", date: "2026-10-14", special: "T", numbers: ["07", "607", "2607"], jackpot: "රු. 250,000", c: "purple" },
+    { id: "sasiri", board: "DLB", drawStyle: "BALL", isReel: true, kw: ["SASIRI"], name: { si: "සසිරි (Reels)", en: "Sasiri" }, drawNo: "1143", date: "2026-10-14", special: "DLB", numbers: ["11", "48", "49"], jackpot: "රු. 200,000", c: "blue" },
+    { id: "waasi", board: "DLB", drawStyle: "REEL", isReel: true, kw: ["WAASI"], name: { si: "වාසි (Waasi Reels)", en: "Waasi" }, drawNo: "0013", date: "2026-10-14", special: "Q", numbers: ["34", "86", "04"], jackpot: "රු. 1,000,000", c: "emerald" }
+];
+
+function playTone(freq = 440, dur = 0.1) {
+    if (!soundEnabled) return;
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + dur);
+    } catch (e) {}
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('soundIcon').className = soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-slate-500';
+    document.getElementById('soundText').innerText = soundEnabled ? 'Sound On' : 'Muted';
+}
+
+function renderLotteries() {
+    const grid = document.getElementById('lotteryGrid');
+    const search = document.getElementById('searchLottery').value.toLowerCase();
+    grid.innerHTML = '';
+
+    lotteryData.filter(item => {
+        if (currentBoard === 'NLB' && item.board !== 'NLB') return false;
+        if (currentBoard === 'DLB' && item.board !== 'DLB') return false;
+        if (currentBoard === 'REEL' && !(item.drawStyle === 'REEL' || item.isReel)) return false;
+        return (item.name.si + ' ' + item.name.en).toLowerCase().includes(search);
+    }).forEach(lotto => {
+        const th = THEMES[lotto.c] || THEMES.amber;
+        const isReel = lotto.drawStyle === 'REEL';
+        const numsHtml = lotto.numbers.map((num, idx) => isReel
+            ? `<div class="reel-slot px-3 h-11 rounded-xl flex items-center justify-center text-amber-300 font-mono font-black text-sm">${num}</div>`
+            : `<div style="background:${th.ballGrad}" class="ball-3d w-10 h-10 rounded-full flex items-center justify-center text-slate-950 font-black text-sm">${num}</div>`
+        ).join('');
+
+        const card = document.createElement('div');
+        card.className = `sweep-card bg-gradient-to-br ${th.cardBg} border ${th.border} rounded-3xl p-5 flex flex-col justify-between shadow-xl`;
+        card.onmouseenter = () => document.documentElement.style.setProperty('--ambient-glow', th.ambient);
+        card.innerHTML = `
+            <div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${th.badge}">${lotto.board} ${isReel ? '• REEL' : ''}</span>
+                    <span class="text-xs font-mono text-amber-400 font-bold">#${lotto.drawNo} | ${lotto.date}</span>
+                </div>
+                <h3 class="text-lg font-extrabold text-white">${lotto.name[currentLang]}</h3>
+                <div id="balls-box-${lotto.id}" class="flex flex-wrap items-center gap-2 my-3.5 py-3 px-3 bg-slate-950/80 rounded-2xl border border-white/10">
+                    <div style="background:radial-gradient(circle at 30% 30%, #fde047, #ca8a04)" class="ball-3d px-3 h-10 rounded-full flex items-center justify-center text-slate-950 font-black text-xs">${lotto.special}</div>
+                    ${numsHtml}
+                </div>
+            </div>
+            <div class="pt-3 border-t border-white/10 space-y-2.5">
+                <div class="flex justify-between text-xs"><span class="text-slate-400">මීළඟ ජයමල්ල:</span><span class="font-extrabold text-amber-300">${lotto.jackpot}</span></div>
+                <div class="no-print grid grid-cols-4 gap-1.5">
+                    <button onclick="replayBallDraw('${lotto.id}')" class="bg-slate-900 hover:bg-slate-800 text-amber-300 text-[11px] font-bold py-2 rounded-xl border border-white/10"><i class="fa-solid fa-rotate"></i> Spin</button>
+                    <button onclick="speakLotteryResult('${lotto.id}')" class="bg-slate-900 hover:bg-slate-800 text-sky-300 text-[11px] font-bold py-2 rounded-xl border border-white/10"><i class="fa-solid fa-volume-high"></i> අසන්න</button>
+                    <button onclick="watchOfficialReel('${lotto.id}')" class="bg-rose-500/20 text-rose-300 text-[11px] font-bold py-2 rounded-xl border border-rose-500/30"><i class="fa-solid fa-play"></i> Reel</button>
+                    <button onclick="shareOnWhatsApp('${lotto.id}')" class="bg-emerald-500/20 text-emerald-300 text-[11px] font-bold py-2 rounded-xl border border-emerald-500/30"><i class="fa-brands fa-whatsapp"></i> Share</button>
+                </div>
+            </div>`;
+        grid.appendChild(card);
+    });
+}
+
+function replayBallDraw(id) {
+    const lotto = lotteryData.find(l => l.id === id), box = document.getElementById('balls-box-' + id);
+    if (!lotto || !box) return;
+    const th = THEMES[lotto.c] || THEMES.amber;
+    box.innerHTML = '';
+    [{ v: lotto.special, s: true }, ...lotto.numbers.map(n => ({ v: n, s: false }))].forEach((it, i) => {
+        setTimeout(() => {
+            playTone(300 + i * 60, 0.08);
+            const el = document.createElement('div');
+            el.style.background = it.s ? 'radial-gradient(circle at 30% 30%, #fde047, #ca8a04)' : th.ballGrad;
+            el.className = it.s ? 'ball-3d px-3 h-10 rounded-full flex items-center justify-center text-slate-950 font-black text-xs' : (lotto.drawStyle === 'REEL' ? 'reel-slot px-3 h-11 rounded-xl flex items-center justify-center text-amber-300 font-mono font-black text-sm' : 'ball-3d w-10 h-10 rounded-full flex items-center justify-center text-slate-950 font-black text-sm');
+            el.innerText = it.v;
+            box.appendChild(el);
+        }, i * 180);
+    });
+}
+
+function calculatePrizeMoney(lotto, userTokens) {
+    const specialMatched = userTokens.includes(lotto.special.toUpperCase());
+    const userNums = userTokens.filter(t => t.toUpperCase() !== lotto.special.toUpperCase());
+    const winNums = lotto.numbers.map(n => n.padStart(2, '0'));
+    let matches = 0;
+    userNums.forEach(u => { if (winNums.includes(u.padStart(2, '0')) || lotto.numbers.includes(u)) matches++; });
+
+    let prize = 0, tierName = "දිනුමක් නැත";
+    if (matches >= 4 && specialMatched) { prize = 50000000; tierName = "🏆 සුපිරි ජයමල්ල (Super Jackpot)!"; }
+    else if (matches >= 4) { prize = 2000000; tierName = "🥇 පළමු ත්‍යාගය (අංක 4ම ගැලපේ)"; }
+    else if (matches === 3 && specialMatched) { prize = 200000; tierName = "🥈 අකුර සමඟ අංක 3ක් ගැලපේ"; }
+    else if (matches === 3) { prize = 4000; tierName = "🥉 අංක 3ක් ගැලපේ"; }
+    else if (matches === 2 && specialMatched) { prize = 2000; tierName = "අකුර සමඟ අංක 2ක් ගැලපේ"; }
+    else if (matches === 2) { prize = 200; tierName = "අංක 2ක් ගැලපේ"; }
+    else if (matches === 1 && specialMatched) { prize = 200; tierName = "අකුර සමඟ අංක 1ක් ගැලපේ"; }
+    else if (matches === 1 || specialMatched) { prize = 40; tierName = "රු. 40 දිනුමක් ගැලපේ"; }
+
+    const tax = prize > 500000 ? Math.round(prize * 0.14) : 0;
+    return { prize, tax, netPrize: prize - tax, tierName };
+}
+
+function checkUserTicket() {
+    const lotto = lotteryData.find(l => l.id === document.getElementById('checkLotterySelect').value);
+    const raw = document.getElementById('userTicketInput').value.trim().toUpperCase();
+    if (!raw || !lotto) return;
+    let tokens = raw.split(/[\s,]+/);
+    if (lotto.drawStyle === 'REEL' && tokens.length === 2 && tokens[1].length >= 4) tokens = [tokens[0], ...tokens[1].split('')];
+
+    const winSet = [lotto.special.toUpperCase(), ...lotto.numbers.map(n => n.padStart(2, '0')), ...lotto.numbers];
+    const calc = calculatePrizeMoney(lotto, tokens);
+    if (calc.prize > 0) { playTone(880, 0.3); if (typeof confetti === 'function') confetti({ particleCount: 60, spread: 60 }); } else playTone(240, 0.1);
+
+    const box = document.getElementById('ticketCheckResult');
+    box.classList.remove('hidden');
+    box.innerHTML = `
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex flex-wrap gap-2">${tokens.map(t => `<span class="w-10 h-10 rounded-full inline-flex items-center justify-center font-black text-sm ${winSet.includes(t) \vert{}\vert{} winSet.includes(t.padStart(2,'0')) ? 'matched-ball' : 'bg-slate-800 text-slate-400'}">${t}</span>`).join('')}</div>
+            <div class="text-center md:text-right">
+                <div class="text-xs font-bold text-amber-300">${calc.tierName}</div>
+                <div class="text-xl font-extrabold ${calc.prize > 0 ? 'text-emerald-400' : 'text-rose-400'}">${calc.prize > 0 ? '🎉 දිනුම් මුදල: රු. ' + calc.prize.toLocaleString() : 'මෙවර දිනුමක් නැත'}</div>
+                ${calc.tax > 0 ? `<div class="text-xs text-amber-400">14% බද්දෙන් පසු: රු. ${calc.netPrize.toLocaleString()}</div>` : ''}
+            </div>
+        </div>`;
+}
+
+// Camera & QR Functions with Automatic Native Fallback
+function openQRModal(isBulk = false) {
+    document.getElementById('qrModal').classList.remove('hidden');
+    const logBox = document.getElementById('bulkScanLog');
+    logBox.className = isBulk ? "mt-3 max-h-36 overflow-y-auto space-y-1 p-2 bg-slate-950 rounded-xl text-xs" : "hidden";
+    html5QrScanner = new Html5Qrcode("qrReader");
+    html5QrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 240, height: 160 } }, (txt) => {
+        playTone(1400, 0.12);
+        if (!isBulk) closeQRModal();
+        parseLotteryTextAndCheck(txt.toUpperCase());
+    }, () => {}).catch(() => {
+        closeQRModal();
+        document.getElementById('ticketFileInput').click();
+    });
+}
+
+function closeQRModal() {
+    document.getElementById('qrModal').classList.add('hidden');
+    if (html5QrScanner) { html5QrScanner.stop().then(() => html5QrScanner.clear()).catch(() => {}); html5QrScanner = null; }
+}
+
+async function openCameraModal() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return document.getElementById('ticketFileInput').click();
+    }
+    const modal = document.getElementById('cameraModal'), video = document.getElementById('cameraVideo');
+    modal.classList.remove('hidden');
+    try {
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+        video.srcObject = videoStream;
+    } catch (e) {
+        closeCameraModal();
+        document.getElementById('ticketFileInput').click();
+    }
+}
+
+function closeCameraModal() {
+    document.getElementById('cameraModal').classList.add('hidden');
+    if (videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; }
+}
+
+async function captureAndScanFrame() {
+    const v = document.getElementById('cameraVideo'), c = document.getElementById('ocrCanvas'), ctx = c.getContext('2d');
+    c.width = v.videoWidth * 0.8; c.height = v.videoHeight * 0.35;
+    ctx.drawImage(v, v.videoWidth * 0.1, v.videoHeight * 0.32, c.width, c.height, 0, 0, c.width, c.height);
+    playTone(1400, 0.12); closeCameraModal();
+    await runTesseractOCR(c.toDataURL('image/png'));
+}
+
+async function handleImageUpload(e) {
+    if (e.target.files[0]) { playTone(1400, 0.12); await runTesseractOCR(URL.createObjectURL(e.target.files[0])); }
+}
+
+async function runTesseractOCR(src) {
+    const box = document.getElementById('ocrStatusBox'), bar = document.getElementById('ocrProgressBar'), pct = document.getElementById('ocrProgressPercent');
+    box.classList.remove('hidden');
+    try {
+        const res = await Tesseract.recognize(src, 'eng', { logger: m => { if (m.status === 'recognizing text') { const p = Math.round(m.progress * 100); bar.style.width = p + '%'; pct.innerText = p + '%'; } } });
+        parseLotteryTextAndCheck(res.data.text.toUpperCase());
+    } finally { setTimeout(() => box.classList.add('hidden'), 1500); }
+}
+
+function parseLotteryTextAndCheck(raw) {
+    for (const l of lotteryData) { if (l.kw.some(k => raw.includes(k))) { document.getElementById('checkLotterySelect').value = l.id; break; } }
+    const tokens = raw.replace(/[^A-Z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+    let letter = '', nums = [];
+    for (const t of tokens) {
+        if (/^[A-Z]$/.test(t) && !letter) letter = t;
+        else if (/^\d{1,2}$/.test(t) && nums.length < 6) nums.push(t);
+        else if (/^\d{6}$/.test(t) && !nums.length) { nums = t.split(''); break; }
+    }
+    const out = [...(letter ? [letter] : []), ...nums];
+    if (out.length) { document.getElementById('userTicketInput').value = out.join(' '); checkUserTicket(); }
+}
+
+// Supreme Tools Functions
+function switchSupremeTab(id) {
+    ['timemachine', 'heatmap', 'wheeling', 'syndicate', 'dreams'].forEach(t => {
+        document.getElementById('sup-panel-' + t).classList.add('hidden');
+        document.getElementById('sup-tab-' + t).className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-950 text-slate-300 border border-white/10";
+    });
+    document.getElementById('sup-panel-' + id).classList.remove('hidden');
+    document.getElementById('sup-tab-' + id).className = "px-3.5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 text-slate-950";
+}
+
+function runTimeMachine() {
+    const nums = document.getElementById('tmInput').value.trim().split(/[\s,]+/).slice(0, 4);
+    const seed = nums.join('').split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    const m3 = (seed % 9) + 3, m2 = (seed % 50) + 42, m1 = (seed % 140) + 280;
+    const won = m3 * 4000 + m2 * 200 + m1 * 40;
+    document.getElementById('tmResultBox').innerHTML = `<div class="grid grid-cols-3 gap-2 text-center mb-3"><div class="bg-slate-900 p-2.5 rounded-xl"><b class="text-lg text-amber-400">${m3}</b><div class="text-[10px] text-slate-400">අංක 3 ගැලපීම්</div></div><div class="bg-slate-900 p-2.5 rounded-xl"><b class="text-lg text-sky-400">${m2}</b><div class="text-[10px] text-slate-400">අංක 2 ගැලපීම්</div></div><div class="bg-slate-900 p-2.5 rounded-xl"><b class="text-lg text-emerald-400">රු. ${won.toLocaleString()}</b><div class="text-[10px] text-slate-400">මුළු දිනුම් මුදල</div></div></div>`;
+}
+
+function initThermalHeatmap() {
+    const g = document.getElementById('heatmapGrid'); g.innerHTML = '';
+    for (let i = 1; i <= 80; i++) {
+        const s = String(i).padStart(2, '0'), isHot = i % 7 === 0 || i % 11 === 0;
+        const b = document.createElement('button');
+        b.className = `py-1.5 rounded-lg border text-xs font-mono ${isHot ? 'bg-rose-500/25 text-rose-300 border-rose-500/40 font-bold' : 'bg-slate-800 text-slate-300 border-white/10'}`;
+        b.innerText = s;
+        b.onclick = () => { document.getElementById('companionBox').innerHTML = `<div class="text-sm font-extrabold text-amber-400 mb-2">අංක ${s} සමඟ වැඩිපුරම වැටෙන මිතුරු අංක 3:</div><div class="flex gap-2"><span class="px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-mono font-bold">${String((i*3)%79+1).padStart(2,'0')}</span><span class="px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-mono font-bold">${String((i*5)%79+1).padStart(2,'0')}</span><span class="px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-mono font-bold">${String((i*7)%79+1).padStart(2,'0')}</span></div>`; };
+        g.appendChild(b);
+    }
+    g.firstChild.click();
+}
+
+function generateWheelTickets() {
+    let p = document.getElementById('wheelInput').value.trim().split(/[\s,]+/).filter(Boolean);
+    while (p.length < 6) p.push(String(Math.floor(Math.random()*75)+1).padStart(2,'0'));
+    const combos = [[p[0],p[1],p[2],p[3]], [p[0],p[1],p[4],p[5]], [p[0],p[2],p[4],p[5]], [p[1],p[3],p[4],p[5]]];
+    document.getElementById('wheelOutput').innerHTML = combos.map((c, i) => `<div class="bg-slate-950 p-3 rounded-xl border border-emerald-500/30 flex justify-between text-xs font-mono"><span>ටිකට් #${i+1}:</span><b class="text-amber-300">${c.join(' - ')}</b></div>`).join('');
+}
+
+function calculateSyndicate() {
+    const m = Math.max(1, Number(document.getElementById('synMembers').value) || 4), g = Number(document.getElementById('synJackpot').value) || 0;
+    const net = g - (g > 500000 ? Math.round(g * 0.14) : 0), per = Math.floor(net / m);
+    document.getElementById('syndicateResultBox').innerHTML = `<div class="text-xs text-slate-300">14% බද්දෙන් පසු එක් අයෙකුට හිමි මුදල (1/${m}):</div><div class="text-xl font-black text-sky-300 my-1">රු. ${per.toLocaleString()}.00</div>`;
+}
+
+function decodeDream() {
+    const map = { elephant: ["G", "07", "19", "45", "77"], snake: ["N", "09", "18", "36", "63"], water: ["W", "04", "12", "28", "56"], gold: ["K", "01", "10", "49", "69"], money: ["M", "08", "24", "52", "74"] };
+    const d = map[document.getElementById('dreamSelect').value];
+    document.getElementById('dreamResultBox').innerHTML = `<div class="flex justify-center gap-2">${d.map((n, i) => `<span class="w-9 h-9 rounded-full ${i===0?'bg-sky-500':'bg-amber-400'} text-slate-950 font-black flex items-center justify-center text-xs">${n}</span>`).join('')}</div>`;
+}
+
+function generateAstroPick() {
+    playTone(520, 0.08);
+    const nums = Array.from({length: 4}, () => String(Math.floor(Math.random()*75)+1).padStart(2,'0'));
+    document.getElementById('aiPickContainer').innerHTML = nums.map(n => `<span class="w-9 h-9 rounded-full bg-amber-400 text-slate-950 font-black flex items-center justify-center text-xs">${n}</span>`).join('');
+}
+
+function saveTicketToVault() {
+    const id = document.getElementById('checkLotterySelect').value, raw = document.getElementById('userTicketInput').value.trim().toUpperCase();
+    if (!raw) return;
+    const v = JSON.parse(localStorage.getItem('lankaLottoVault') || '[]');
+    v.push({ lotteryId: id, numbers: raw });
+    localStorage.setItem('lankaLottoVault', JSON.stringify(v));
+    renderVault();
+}
+
+function clearVault() { localStorage.removeItem('lankaLottoVault'); renderVault(); }
+
+function renderVault() {
+    const v = JSON.parse(localStorage.getItem('lankaLottoVault') || '[]'), list = document.getElementById('vaultList');
+    let won = 0;
+    list.innerHTML = v.length ? v.map(it => {
+        const l = lotteryData.find(x => x.id === it.lotteryId) || lotteryData[0], c = calculatePrizeMoney(l, it.numbers.split(/[\s,]+/));
+        won += c.prize;
+        return `<div class="p-3 rounded-xl bg-slate-950 border border-white/10 flex justify-between"><span><b>${l.name.si}</b>: ${it.numbers}</span><b class="text-emerald-400">රු. ${c.prize}</b></div>`;
+    }).join('') : `<div class="text-slate-500">තවම ටිකට් සේව් කර නැත.</div>`;
+    document.getElementById('vaultTotalSpent').innerText = `රු. ${v.length * 40}`;
+    document.getElementById('vaultTotalWon').innerText = `රු. ${won.toLocaleString()}`;
+}
+
+function speakLotteryResult(id) {
+    const l = lotteryData.find(x => x.id === id);
+    if (l && 'speechSynthesis' in window) { window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(`${l.name.en}, Draw ${l.drawNo}. Special ${l.special}. Numbers: ${l.numbers.join(', ')}`)); }
+}
+
+function watchOfficialReel(id) {
+    const l = lotteryData.find(x => x.id === id);
+    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(l.board + ' ' + l.name.en + ' lottery results Sri Lanka')}`, '_blank');
+}
+
+function shareOnWhatsApp(id) {
+    const l = lotteryData.find(x => x.id === id);
+    window.open(`https://wa.me/?text=${encodeURIComponent(`🏆 *${l.name.si}* (#${l.drawNo})\n🎯 ජය අංක: [ ${l.special} ] ${l.numbers.join(' - ')}\n📲 දිනුම් පරීක්ෂා කරන්න: ${window.location.href}`)}`, '_blank');
+}
+
+function filterBoard(b) { currentBoard = b; renderLotteries(); }
+function setLanguage(l) { currentLang = l; populateCheckerDropdown(); renderLotteries(); }
+function updateInputPlaceholder() { const l = lotteryData.find(x => x.id === document.getElementById('checkLotterySelect').value); if (l) document.getElementById('userTicketInput').placeholder = `උදා: ${l.special} ${l.numbers.join(' ')}`; }
+function populateCheckerDropdown() { document.getElementById('checkLotterySelect').innerHTML = lotteryData.map(l => `<option value="${l.id}">${l.board} - ${l.name[currentLang]} (#${l.drawNo})</option>`).join(''); updateInputPlaceholder(); }
+
+async function initApp() {
+    try {
+        const r = await fetch('./results.json?t=' + Date.now());
+        if (r.ok) { const d = await r.json(); d.forEach(s => { const ex = lotteryData.find(l => l.id === s.id); if (ex) Object.assign(ex, s); }); }
+    } catch (e) {}
+    populateCheckerDropdown(); renderLotteries(); renderVault(); runTimeMachine(); initThermalHeatmap(); generateWheelTickets(); calculateSyndicate(); decodeDream(); generateAstroPick();
+}
+
+setInterval(() => {
+    const now = new Date(), target = new Date(); target.setHours(22, 0, 0, 0);
+    if (now >= target) target.setDate(target.getDate() + 1);
+    const diff = target - now;
+    document.getElementById('countdownTimer').innerText = `${String(Math.floor(diff/3600000)).padStart(2,'0')}:${String(Math.floor((diff/60000)%60)).padStart(2,'0')}:${String(Math.floor((diff/1000)%60)).padStart(2,'0')}`;
+}, 1000);
+
+initApp();
+</script>
+</body>
+</html>
