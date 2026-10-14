@@ -1,0 +1,16 @@
+{
+  "name": "LankaLotto - ශ්‍රී ලංකාවේ නිල ලොතරැයි ප්‍රතිඵල",
+  "short_name": "LankaLotto",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#070b12",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='115' fill='%23f59e0b'/><circle cx='256' cy='256' r='170' fill='%23070b12'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='180' fill='%23fbbf24'>77</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
